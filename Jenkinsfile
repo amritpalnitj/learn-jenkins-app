@@ -36,10 +36,27 @@ pipeline {
                     '''
             }
         }
+
+        stage('E2E tests'){
+            agent {
+                docker {
+                    image 'node:18-alpine'
+                    reuseNode true
+                }
+            }
+            steps{
+                sh '''
+                    echo 'starting the server'
+                    npm install -g serve
+                    node_modules/.bin/serve -s build &
+                    npx playwright test
+                    '''
+            }
+        }
     }
     post{
         always{
-            junit 'test-results/junit.xml'
+            junit 'jest-results/junit.xml'
         }
     }
 }
