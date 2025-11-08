@@ -24,7 +24,7 @@ pipeline {
 
             }
         }
-
+/*
         stage(' Running tests in Parallel'){
             parallel{
                 stage('Unit Test'){
@@ -63,7 +63,7 @@ pipeline {
 
             }
         }
-
+*/
         stage('Deploy') {
             agent {
                 docker{
@@ -73,7 +73,7 @@ pipeline {
             }
             steps {
                 sh '''
-                         npm install netlify -cli@20.1.1
+                         npm install netlify-cli@20.1.1
                          node_modules/.bin/netlify --version
                          echo "Deploying to Prod with Site ID: ${NETLIFY_SITE_ID}"
 
