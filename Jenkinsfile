@@ -25,7 +25,7 @@ pipeline {
 
             }
         }
-/*
+
         stage(' Running tests in Parallel'){
             parallel{
                 stage('Unit Test'){
@@ -64,7 +64,7 @@ pipeline {
 
             }
         }
-*/
+
         stage('Deploy') {
             agent {
                 docker{
@@ -82,6 +82,31 @@ pipeline {
                      '''
 
             }
+        }
+
+        stage('E2E Prod Tests'){
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                    reuseNode true
+                        }
+                 }
+
+            environment{
+                CI_ENVIRONMENT_URL='https://cerulean-sprinkles-492ab6.netlify.app'
+                // above parameter will make change in playwright.config.js hence ensuring deployed version is tested, if not given localhost:3030 is considered
+            }
+            steps{
+                sh '''
+                   npx playwright test
+                    '''
+                 }
+            post{
+                always{
+                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright e2e HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+                }
+            }
+
         }
 
 
