@@ -101,6 +101,7 @@ pipeline {
             steps{
                 sh '''
                    echo " Staging url is $env.staging_url"
+                   echo $process.env.CI_ENVIRONMENT_URL
 
                    npx playwright test
                     '''
