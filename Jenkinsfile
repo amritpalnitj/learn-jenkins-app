@@ -100,7 +100,6 @@ pipeline {
             }
             steps{
                 sh '''
-                   echo $CI_ENVIRONMENT_URL
                    echo ${env.staging_url}
 
                    npx playwright test
