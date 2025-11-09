@@ -78,7 +78,7 @@ pipeline {
                          node_modules/.bin/netlify --version
                          echo "Deploying to Prod with Site ID: ${NETLIFY_SITE_ID}"
                          node_modules/.bin/netlify status
-                         node_modules/.bin/netlify deploy --dir=build -json > deploy_output.json
+                         node_modules/.bin/netlify deploy --dir=build --prod --json > deploy_output.json
                      '''
                 script{
                     env.staging_url = sh(script: "node_modules/.bin/node-jq -r '.deploy_url' deploy_output.json")
