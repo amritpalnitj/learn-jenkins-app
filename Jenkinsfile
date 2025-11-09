@@ -100,7 +100,7 @@ pipeline {
             }
             steps{
                 sh '''
-                   echo " Staging url is ${env.staging_url}"
+                   echo " Staging url is $env.staging_url"
 
                    npx playwright test
                     '''
