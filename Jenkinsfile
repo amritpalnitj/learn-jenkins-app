@@ -65,7 +65,7 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Stage Deploy') {
             agent {
                 docker{
                     image 'node:18-alpine'
@@ -74,36 +74,38 @@ pipeline {
             }
             steps {
                 sh '''
-                         npm install netlify-cli@20.1.1
+                         npm install netlify-cli@20.1.1 node-jq
                          node_modules/.bin/netlify --version
                          echo "Deploying to Prod with Site ID: ${NETLIFY_SITE_ID}"
                          node_modules/.bin/netlify status
-                         node_modules/.bin/netlify deploy --dir=build --prod
+                         node_modules/.bin/netlify deploy --dir=build -json > deploy_output.json
                      '''
-
+                script{
+                    env.staging_url = sh(script: "node_modules/.bin/node-jq -r '.deploy_url' deploy_output.json")
+                }
             }
         }
 
-        stage('E2E Prod Tests'){
+        stage('E2E Stage Tests'){
             agent {
                 docker {
                     image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
                     reuseNode true
-                        }
-                 }
+                }
+            }
 
             environment{
-                CI_ENVIRONMENT_URL='https://cerulean-sprinkles-492ab6.netlify.app'
+                CI_ENVIRONMENT_URL="${env.staging_url}"
                 // above parameter will make change in playwright.config.js hence ensuring deployed version is tested, if not given localhost:3030 is considered
             }
             steps{
                 sh '''
                    npx playwright test
                     '''
-                 }
+            }
             post{
                 always{
-                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright e2e HTML Report', reportTitles: '', useWrapperFileDirectly: true])
+                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright e2e stage Report', reportTitles: '', useWrapperFileDirectly: true])
                 }
             }
 
